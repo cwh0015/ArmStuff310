@@ -19,8 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ADD.c" />
     <ClCompile Include="ARM_instructions.c" />
     <ClCompile Include="ARM_parser.c" />
+    <ClCompile Include="LSR.c" />
+    <ClCompile Include="MOV.c" />
     <ClCompile Include="utility.c" />
   </ItemGroup>
   <ItemGroup>

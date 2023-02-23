@@ -581,7 +581,7 @@ char* remove_prefix(char* input, char* prefix) {
 	Returns: none
 */
 void print_16(uint16_t value) {
-	printf("Hex: 0x%4X\tBinary:", value);
+	printf("Hex: 0x%04X\tBinary:", value);
 
 	for (int i = 15; i > -1; i--) {
 		printf("%d", (value >> i) & 1);
@@ -601,7 +601,7 @@ void print_16(uint16_t value) {
 	Returns: none
 */
 void print_32(uint32_t value) {
-	printf("Hex: 0x%4X\tBinary:", value);
+	printf("Hex: 0x%04X\tBinary:", value);
 
 	for (int i = 31; i > -1; i--) {
 		printf("%d", (value >> i) & 1);
