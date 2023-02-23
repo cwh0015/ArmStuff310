@@ -571,7 +571,7 @@ int lsrs_assm(char* line)
 		else {
 			// removes the register digits
 			line = trim_digit(line);
-			set_range_16(&inst16, 10, btoa(Rd, 3));
+			set_range_16(&inst16, 5, btoa(Rd, 3));
 
 		}
 	}
@@ -606,7 +606,7 @@ int lsrs_assm(char* line)
 		else {
 			// removes the register digits
 			line = trim_digit(line);
-			set_range_16(&inst16, 7, btoa(Rm, 3));
+			set_range_16(&inst16, 2, btoa(Rm, 3));
 
 		}
 	}
@@ -649,7 +649,7 @@ int lsrs_assm(char* line)
 
 			// removes the immediate digits
 			line = trim_digit(line);
-			set_range_16(&inst16, 4, btoa(imm8, 5));
+			set_range_16(&inst16, 10, btoa(imm8, 5));
 		}
 	}
 	else if (*line != '\0') { // if there is a parameter, but it is not expected
