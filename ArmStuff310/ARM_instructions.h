@@ -69,4 +69,6 @@ int movw_bin(uint32_t command);
 /*		LSRS		*/
 int lsrs_assm(char* line);
 
+int lsrs_bin(uint32_t);
+
 #endif

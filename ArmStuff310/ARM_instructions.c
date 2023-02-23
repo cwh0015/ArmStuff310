@@ -17,10 +17,11 @@ int(*assembly_instructs[ASSM_COUNT])(char*) = {
 	   instructs_16_bit
 \----------------------------*/
 // arry containing all of the _bin functions for 16 bit instructions
-#define BIT_16_COUNT 1 // <-- count needs to be increased when a function is added
+#define BIT_16_COUNT 2 // <-- count needs to be increased when a function is added
 int(*instructs_16_bit[ASSM_COUNT])(uint16_t) = {
 	// function names are placed below in a comma seperated list
-	movs_immd_bin
+	movs_immd_bin,
+	lsrs_bin
 };
 
 /*----------------------------\
@@ -556,7 +557,6 @@ int lsrs_assm(char* line)
 		return MISSING_SPACE;
 	}
 	
-	//################################################################
 	if (expect_prefix(line, "R") == 0) {
 		// remove the R
 		line = remove_prefix(line, "R");
@@ -571,7 +571,7 @@ int lsrs_assm(char* line)
 		else {
 			// removes the register digits
 			line = trim_digit(line);
-			set_range_16(&inst16, 5, btoa(Rd, 3));
+			set_range_16(&inst16, 2, btoa(Rd, 3));
 
 		}
 	}
@@ -606,7 +606,7 @@ int lsrs_assm(char* line)
 		else {
 			// removes the register digits
 			line = trim_digit(line);
-			set_range_16(&inst16, 2, btoa(Rm, 3));
+			set_range_16(&inst16, 5, btoa(Rm, 3));
 
 		}
 	}
@@ -629,27 +629,27 @@ int lsrs_assm(char* line)
 	if (expect_prefix(line, "#") == 0) { // if it is an immediate
 		line = remove_prefix(line, "#");
 
-		int imm8;
+		int imm5;
 
 		// checks if the immediate value is in hexadecimal or decimal
 		if (expect_prefix(line, "0x") == 0) {
-			imm8 = atox(line);
+			imm5 = atox(line);
 			line = remove_prefix(line, "0x");
 		}
 		else {
-			imm8 = atoi(line);
+			imm5 = atoi(line);
 		}
 
 
 		// checks if the immediate vlaue is valid for MOVS
-		if (imm8 > 0x20 || imm8 < 0x1) {
+		if (imm5 > 0x20 || imm5 < 0x1) {
 			return INVALID_IMMED;
 		}
 		else {
 
 			// removes the immediate digits
 			line = trim_digit(line);
-			set_range_16(&inst16, 10, btoa(imm8, 5));
+			set_range_16(&inst16, 10, btoa(imm5, 5));
 		}
 	}
 	else if (*line != '\0') { // if there is a parameter, but it is not expected
@@ -672,6 +672,37 @@ int lsrs_assm(char* line)
 	}
 
 
+
+	return COMPLETE;
+}
+
+int lsrs_bin(uint16_t command)
+{
+	// checks if the required bits match
+	if (range_equals_16(command, 15, "00001") != 0) {
+		return WRONG_COMMAND;
+	}
+
+	int Rd = get_range_16(command, 2, 3);
+
+	if (Rd == -1) {
+		return INVALID_REG;
+	}
+
+	int Rm = get_range_16(command, 5, 3);
+
+	if (Rm == -1) {
+		return INVALID_REG;
+	}
+
+	int imm5 = get_range_16(command, 10, 5);
+
+	// checks that the register value is valid
+	if (imm5 == -1) {
+		return INVALID_IMMED;
+	}
+
+	sprintf(assm_instruct, "LSRS R%d, R%d, #0x%02X", Rd, Rm, imm5);
 
 	return COMPLETE;
 }
