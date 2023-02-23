@@ -5,11 +5,12 @@
 	   assembly_instructs
 \----------------------------*/
 // arry containing all of the _assm functions
-#define ASSM_COUNT 2 // <-- count needs to be increased when a function is added
+#define ASSM_COUNT 3 // <-- count needs to be increased when a function is added
 int(*assembly_instructs[ASSM_COUNT])(char*) = {
 	// function names are placed below in a comma seperated list
 	movs_assm,
-	movw_assm
+	movw_assm,
+	lsrs_assm
 };
 
 /*----------------------------\
@@ -525,6 +526,152 @@ int movw_bin(uint32_t command) {
 
 	// combines the parts of the command into the assm_instruct string
 	sprintf(assm_instruct, "%s R%d, #0x%04X", "MOVW", Rd, immd);
+
+	return COMPLETE;
+}
+
+int lsrs_assm(char* line)
+{
+	/**
+	 * @brief parses left shift command from assembly to binary
+	 * @param line user input to be parsed
+	 * @return 
+	*/
+	if (expect_prefix(line, "LSRS") == 0) {
+		line = remove_prefix(line, "LSRS");
+
+		inst16 = 0x00;
+		set_range_16(&inst16, 15, "00001");
+	}
+	else {
+		return WRONG_COMMAND;
+	}
+	
+	// checks that the space is present
+	if (expect_prefix(line, " ") == 0) {
+		// removes the space
+		line = remove_prefix(line, " ");
+	}
+	else {
+		return MISSING_SPACE;
+	}
+	
+	//################################################################
+	if (expect_prefix(line, "R") == 0) {
+		// remove the R
+		line = remove_prefix(line, "R");
+
+		// converts the register number
+		int Rd = atoi(line);
+
+		// checks if the register is valid for MOVW
+		if (Rd > 7 || Rd < 0) {
+			return INVALID_REG;
+		}
+		else {
+			// removes the register digits
+			line = trim_digit(line);
+			set_range_16(&inst16, 10, btoa(Rd, 3));
+
+		}
+	}
+	else {
+		return MISSING_DESTINATION;
+	}
+
+	// checks that the comma is present
+	if (expect_prefix(line, ",") == 0) {
+		// removes the comma
+		line = remove_prefix(line, ",");
+	}
+	else {
+		return MISSING_COMMA;
+	}
+
+	// clears any white space
+	line = trim_space(line);
+
+	// checks for the start of a register paramater
+	if (expect_prefix(line, "R") == 0) {
+		// remove the R
+		line = remove_prefix(line, "R");
+
+		// converts the register number
+		int Rm = atoi(line);
+
+		// checks if the register is valid for MOVW
+		if (Rm > 7 || Rm < 0) {
+			return INVALID_REG;
+		}
+		else {
+			// removes the register digits
+			line = trim_digit(line);
+			set_range_16(&inst16, 7, btoa(Rm, 3));
+
+		}
+	}
+	else {
+		return MISSING_PARAM;
+	}
+
+	// checks that the comma is present
+	if (expect_prefix(line, ",") == 0) {
+		// removes the comma
+		line = remove_prefix(line, ",");
+	}
+	else {
+		return MISSING_COMMA;
+	}
+
+	// clears any white space
+	line = trim_space(line);
+
+	if (expect_prefix(line, "#") == 0) { // if it is an immediate
+		line = remove_prefix(line, "#");
+
+		int imm8;
+
+		// checks if the immediate value is in hexadecimal or decimal
+		if (expect_prefix(line, "0x") == 0) {
+			imm8 = atox(line);
+			line = remove_prefix(line, "0x");
+		}
+		else {
+			imm8 = atoi(line);
+		}
+
+
+		// checks if the immediate vlaue is valid for MOVS
+		if (imm8 > 0x20 || imm8 < 0x1) {
+			return INVALID_IMMED;
+		}
+		else {
+
+			// removes the immediate digits
+			line = trim_digit(line);
+			set_range_16(&inst16, 4, btoa(imm8, 5));
+		}
+	}
+	else if (*line != '\0') { // if there is a parameter, but it is not expected
+		return INVALID_PARAM;
+	}
+	else { // there is no other parameter
+		return MISSING_PARAM;
+	}
+
+
+
+	// clears any white space
+	line = trim_space(line);
+
+
+
+	// checks that there is no more paramaters
+	if (*line != '\0') {
+		return UNEXPECTED_PARAM;
+	}
+
+
 
 	return COMPLETE;
 }
