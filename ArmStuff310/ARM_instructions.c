@@ -5,9 +5,9 @@
 * 
 	   Group Members
 	   ------------
-	   Kevin Myers
-	   Abby Edwards
-	   Cole Henderson
+	   Kevin Myers: MOV
+	   Abby Edwards: ADD
+	   Cole Henderson: LSR
 
 
 	   Problem Set D
