@@ -1046,7 +1046,7 @@ int mov_bin(uint32_t command) {
 
 	int Rm = get_range_32(command, 3, 4);
 
-	int S = get_range_32(command, 20, 4);
+	int S = get_range_32(command, 20, 1);
 
 	// checks that the register value is valid
 	if (Rd == -1) {
