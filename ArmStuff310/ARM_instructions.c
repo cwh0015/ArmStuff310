@@ -5,13 +5,14 @@
 	   assembly_instructs
 \----------------------------*/
 // arry containing all of the _assm functions
-#define ASSM_COUNT 4 // <-- count needs to be increased when a function is added
+#define ASSM_COUNT 5 // <-- count needs to be increased when a function is added
 int(*assembly_instructs[ASSM_COUNT])(char*) = {
 	// function names are placed below in a comma seperated list
 	movs_assm,
 	movw_assm,
 	lsrs_assm,
-	adds_assm
+	adds_assm,
+	mov_assm
 };
 
 /*----------------------------\
@@ -30,10 +31,11 @@ int(*instructs_16_bit[ASSM_COUNT])(uint16_t) = {
        instructs_32_bit     
 \----------------------------*/
 // arry containing all of the _bin functions for 32 bit instructions
-#define BIT_32_COUNT 1 // <-- count needs to be increased when a function is added
+#define BIT_32_COUNT 2 // <-- count needs to be increased when a function is added
 int(*instructs_32_bit[ASSM_COUNT])(uint32_t) = {
 	// function names are placed below in a comma seperated list
-	movw_bin
+	movw_bin,
+	mov_bin
 };
 
 /*
@@ -907,6 +909,156 @@ int lsrs_bin(uint16_t command)
 	}
 
 	sprintf(assm_instruct, "LSRS R%d, R%d, #0x%02X", Rd, Rm, imm5);
+
+	return COMPLETE;
+}
+int mov_assm(char* line) {
+
+	// checks what command the line has
+	if (expect_prefix(line, "MOV") == 0) {
+		// clears the 32 bit instruction
+		inst32 = 0x0;
+
+		// sets the required bits for MOVW
+		set_range_32(&inst32, 31, "1110 1010 010x 1111 0000 xxxx 0000 xxxx");
+
+		// removes the MOVW
+		line = remove_prefix(line, "MOV");
+	}
+	else {
+		return WRONG_COMMAND;
+	}
+
+	if (expect_prefix(line, "S") == 0) {
+		line = remove_prefix(line, "S");
+		set_range_32(&inst32, 20, btoa(1, 1));
+	}
+	else {
+		set_range_32(&inst32, 20, btoa(0, 1));
+	}
+
+	// checks that the space is present
+	if (expect_prefix(line, " ") == 0) {
+		// removes the space
+		line = remove_prefix(line, " ");
+	}
+	else {
+		return MISSING_SPACE;
+	}
+
+	// checks for the start of a register paramater
+	if (expect_prefix(line, "R") == 0) {
+		// remove the R
+		line = remove_prefix(line, "R");
+
+		// converts the register number
+		int Rd = atoi(line);
+
+		// checks if the register is valid for MOVW
+		if (Rd > 15 || Rd < 0) {
+			return INVALID_REG;
+		}
+		else {
+			// removes the register digits
+			line = trim_digit(line);
+
+			// sets the register value
+			set_range_32(&inst32, 11, btoa(Rd, 4));
+		}
+	}
+	else {
+		return MISSING_DESTINATION;
+	}
+
+
+
+	// clears any white space
+	line = trim_space(line);
+
+
+
+	// checks that the comma is present
+	if (expect_prefix(line, ",") == 0) {
+		// removes the comma
+		line = remove_prefix(line, ",");
+	}
+	else {
+		return MISSING_COMMA;
+	}
+
+
+
+	// clears any white space
+	line = trim_space(line);
+
+
+	if (expect_prefix(line, "R") == 0) {
+		// remove the R
+		line = remove_prefix(line, "R");
+
+		// converts the register number
+		int Rd = atoi(line);
+
+		// checks if the register is valid for MOVW
+		if (Rd > 15 || Rd < 0) {
+			return INVALID_REG;
+		}
+		else {
+			// removes the register digits
+			line = trim_digit(line);
+
+			// sets the register value
+			set_range_32(&inst32, 3, btoa(Rd, 4));
+		}
+	}
+	else {
+		return MISSING_DESTINATION;
+	}
+
+
+
+	// clears any white space
+	line = trim_space(line);
+
+
+
+	// checks that there is no more paramaters
+	if (*line != '\0') {
+		return UNEXPECTED_PARAM;
+	}
+
+
+
+	return COMPLETE;
+}
+
+int mov_bin(uint32_t command) {
+
+	// checks if the required bits match
+	if (range_equals_32(command, 31, "1110 1010 010x 1111 0000 xxxx 0000 xxxx") != 0) {
+		return WRONG_COMMAND;
+	}
+
+
+
+	// retrieves the register value
+	int Rd = get_range_32(command, 11, 4);
+
+	int Rm = get_range_32(command, 3, 4);
+
+	int S = get_range_32(command, 20, 4);
+
+	// checks that the register value is valid
+	if (Rd == -1) {
+		return INVALID_REG;
+	}
+
+	if (Rm == -1) {
+		return INVALID_REG;
+	}
+
+	// combines the parts of the command into the assm_instruct string
+	sprintf(assm_instruct, "%s%d R%d, R%d", "MOV", S, Rd, Rm);
 
 	return COMPLETE;
 }

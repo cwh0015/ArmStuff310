@@ -77,4 +77,9 @@ int adds_assm(char* line);
 
 int adds_bin(uint16_t command);
 
+/*		MOV		*/
+int mov_assm(char* line);
+
+int mov_bin(uint32_t command);
+
 #endif
