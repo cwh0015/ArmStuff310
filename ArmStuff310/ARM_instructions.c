@@ -5,23 +5,25 @@
 	   assembly_instructs
 \----------------------------*/
 // arry containing all of the _assm functions
-#define ASSM_COUNT 3 // <-- count needs to be increased when a function is added
+#define ASSM_COUNT 4 // <-- count needs to be increased when a function is added
 int(*assembly_instructs[ASSM_COUNT])(char*) = {
 	// function names are placed below in a comma seperated list
 	movs_assm,
 	movw_assm,
-	lsrs_assm
+	lsrs_assm,
+	adds_assm
 };
 
 /*----------------------------\
 	   instructs_16_bit
 \----------------------------*/
 // arry containing all of the _bin functions for 16 bit instructions
-#define BIT_16_COUNT 2 // <-- count needs to be increased when a function is added
+#define BIT_16_COUNT 3 // <-- count needs to be increased when a function is added
 int(*instructs_16_bit[ASSM_COUNT])(uint16_t) = {
 	// function names are placed below in a comma seperated list
 	movs_immd_bin,
-	lsrs_bin
+	lsrs_bin,
+	adds_bin
 };
 
 /*----------------------------\
@@ -191,6 +193,208 @@ int result_print(int code) {
 	what code the function finished with.
 */
 
+/*     ADDS_BIN		*/
+int adds_bin(uint16_t command) {
+
+	// checks if the required bits match
+	if (range_equals_16(command, 15, "0001100") != 0) {
+		return WRONG_COMMAND;
+	}
+
+
+
+	// retrieves the register value
+	int Rd = get_range_16(command, 2, 3);
+
+	// checks that the register value is valid
+	if (Rd == -1) {
+		return INVALID_REG;
+	}
+
+	// retrieves the register value
+	int Rm = get_range_16(command, 8, 3);
+
+	// checks that the register value is valid
+	if (Rm == -1) {
+		return INVALID_REG;
+	}
+
+
+	// retrieves the register value
+	int Rn = get_range_16(command, 5, 3);
+
+	// checks that the register value is valid
+	if (Rn == -1) {
+		return INVALID_REG;
+	}
+
+	// combines the parts of the command into the assm_instruct string
+	sprintf(assm_instruct, "ADDS R%d, R%d, R%d", Rd, Rn, Rm);
+
+
+	return COMPLETE;
+}
+
+/* ADDS_ASSM */
+int adds_assm(char* line) {
+
+	// checks if it matches the MOVS
+	if (expect_prefix(line, "ADDS") == 0) {
+		line = remove_prefix(line, "ADDS");
+
+		inst16 = 0x00;
+		set_range_16(&inst16, 15, "0001100");
+	}
+	else {
+		return WRONG_COMMAND;
+	}
+
+
+
+	// checks that the space is present
+	if (expect_prefix(line, " ") == 0) {
+		// removes the space
+		line = remove_prefix(line, " ");
+	}
+	else {
+		return MISSING_SPACE;
+	}
+
+
+
+	// checks for the start of a register paramater
+	if (expect_prefix(line, "R") == 0) {
+		// remove the R
+		line = remove_prefix(line, "R");
+
+		// converts the register number
+		int Rd = atoi(line);
+
+		// checks if the register is valid for MOVW
+		if (Rd > 7 || Rd < 0) {
+			return INVALID_REG;
+		}
+		else {
+			// removes the register digits
+			line = trim_digit(line);
+			set_range_16(&inst16, 10, btoa(Rd, 3));
+
+		}
+	}
+	else {
+		return MISSING_DESTINATION;
+	}
+
+
+
+	// clears any white space
+	line = trim_space(line);
+
+
+
+	// checks that the comma is present
+	if (expect_prefix(line, ",") == 0) {
+		// removes the comma
+		line = remove_prefix(line, ",");
+	}
+	else {
+		return MISSING_COMMA;
+	}
+
+
+
+	// clears any white space
+	line = trim_space(line);
+
+
+	// checks for the start of a register paramater
+	if (expect_prefix(line, "R") == 0) {
+		// remove the R
+		line = remove_prefix(line, "R");
+
+		// converts the register number
+		int Rn = atoi(line);
+
+		// checks if the register is valid for ADDS
+		if (Rn > 7 || Rn < 0) {
+			return INVALID_REG;
+		}
+		else {
+			// removes the register digits
+			line = trim_digit(line);
+			set_range_16(&inst16, 10, btoa(Rn, 3));
+
+		}
+	}
+
+
+
+	// clears any white space
+	line = trim_space(line);
+
+
+
+	// checks that the comma is present
+	if (expect_prefix(line, ",") == 0) {
+		// removes the comma
+		line = remove_prefix(line, ",");
+	}
+	else {
+		return MISSING_COMMA;
+	}
+
+
+
+	// clears any white space
+	line = trim_space(line);
+
+
+	// checks for the start of a register paramater
+	if (expect_prefix(line, "R") == 0) {
+		// remove the R
+		line = remove_prefix(line, "R");
+
+		// converts the register number
+		int Rm = atoi(line);
+
+		// checks if the register is valid for ADDS
+		if (Rm > 7 || Rm < 0) {
+			return INVALID_REG;
+		}
+		else {
+			// removes the register digits
+			line = trim_digit(line);
+			set_range_16(&inst16, 10, btoa(Rm, 3));
+
+		}
+	}
+	else if (*line != '\0') { // if there is a parameter, but it is not expected
+		return INVALID_PARAM;
+	}
+	else { // there is no other parameter
+		return MISSING_PARAM;
+	}
+
+
+
+
+
+
+
+	// clears any white space
+	line = trim_space(line);
+
+
+
+	// checks that there is no more paramaters
+	if (*line != '\0') {
+		return UNEXPECTED_PARAM;
+	}
+
+
+
+	return COMPLETE;
+}
 /*     MOVS     */
 int movs_assm(char* line) {
 

@@ -71,4 +71,10 @@ int lsrs_assm(char* line);
 
 int lsrs_bin(uint32_t);
 
+/*		ADDS	    */
+
+int adds_assm(char* line);
+
+int adds_bin(uint16_t command);
+
 #endif
