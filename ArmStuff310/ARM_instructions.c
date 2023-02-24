@@ -295,7 +295,7 @@ int adds_assm(char* line) {
 		else {
 			// removes the register digits
 			line = trim_digit(line);
-			set_range_16(&inst16, 10, btoa(Rd, 3));
+			set_range_16(&inst16, 2, btoa(Rd, 3));
 
 		}
 	}
@@ -340,7 +340,7 @@ int adds_assm(char* line) {
 		else {
 			// removes the register digits
 			line = trim_digit(line);
-			set_range_16(&inst16, 10, btoa(Rn, 3));
+			set_range_16(&inst16, 5, btoa(Rn, 3));
 
 		}
 	}
@@ -382,7 +382,7 @@ int adds_assm(char* line) {
 		else {
 			// removes the register digits
 			line = trim_digit(line);
-			set_range_16(&inst16, 10, btoa(Rm, 3));
+			set_range_16(&inst16, 8, btoa(Rm, 3));
 
 		}
 	}
