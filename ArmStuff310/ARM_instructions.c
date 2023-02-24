@@ -2,6 +2,22 @@
 #include "utility.h"
 
 /*----------------------------\
+* 
+	   Group Members
+	   ------------
+	   Kevin Myers
+	   Abby Edwards
+	   Cole Henderson
+
+
+	   Problem Set D
+
+\----------------------------*/
+
+
+
+
+/*----------------------------\
 	   assembly_instructs
 \----------------------------*/
 // arry containing all of the _assm functions
