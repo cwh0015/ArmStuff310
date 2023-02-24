@@ -864,7 +864,7 @@ int lsrs_assm(char* line)
 
 
 		// checks if the immediate vlaue is valid for MOVS
-		if (imm5 > 0x20 || imm5 < 0x1) {
+		if (imm5 > 0x1F || imm5 < 0x1) {
 			return INVALID_IMMED;
 		}
 		else {
